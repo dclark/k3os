@@ -3,21 +3,22 @@ ARG TAG
 FROM ubuntu:focal
 
 RUN apt-get --assume-yes update \
- && apt-get --assume-yes install \
+    && apt-get --assume-yes install \
     curl \
     initramfs-tools \
     kmod \
     lz4 \
     rsync \
     xz-utils \
- && echo 'hfs' >> /etc/initramfs-tools/modules \
- && echo 'hfsplus' >> /etc/initramfs-tools/modules \
- && echo 'nls_utf8' >> /etc/initramfs-tools/modules \
- && echo 'nls_iso8859_1' >> /etc/initramfs-tools/modules
+    && echo 'hfs' >> /etc/initramfs-tools/modules \
+    && echo 'hfsplus' >> /etc/initramfs-tools/modules \
+    && echo 'nls_utf8' >> /etc/initramfs-tools/modules \
+    && echo 'nls_iso8859_1' >> /etc/initramfs-tools/modules
 
 ARG ARCH
 ENV KVERSION=5.0.0-43-generic
-ENV URL=https://github.com/rancher/k3os-kernel/releases/download/5.0.0-43.47-rancher1
+#ENV URL=https://github.com/rancher/k3os-kernel/releases/download/5.0.0-43.47-rancher1
+ENV URL=https://github.com/dclark/k3os-kernel/releases/download/5.0.0-43.47-rancher1-wireguard
 ENV KERNEL_XZ=${URL}/kernel-generic_${ARCH}.tar.xz
 ENV KERNEL_EXTRA_XZ=${URL}/kernel-extra-generic_${ARCH}.tar.xz
 ENV KERNEL_HEADERS_XZ=${URL}/kernel-headers-generic_${ARCH}.tar.xz
