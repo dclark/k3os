@@ -320,3 +320,78 @@ func ApplyEnvironment(cfg *config.CloudConfig) error {
 
 	return nil
 }
+
+// ApplyEtcd etcd configuration
+func ApplyEtcd(cfg *config.CloudConfig) error {
+
+	iface := cfg.K3OS.Etcd.Iface
+	token := cfg.K3OS.Etcd.Token
+	args := cfg.K3OS.Etcd.Args
+
+	missingConfig := false
+
+	if len(iface) == 0 {
+		missingConfig = true
+	}
+
+	if len(token) == 0 {
+		missingConfig = true
+	}
+
+	if len(args) == 0 {
+		missingConfig = true
+	}
+
+	if missingConfig {
+
+		// Etcd Configuration is missing, ensure that the service is stopped and run level
+		// scripts are removed
+
+		// Stop the etcd service
+		cmd := exec.Command("/etc/init.d/etcd-service", "stop")
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		cmd.Stdin = os.Stdin
+		cmd.Run()
+
+		// Remove the etcd service from the run level
+		cmd = exec.Command("/usr/sbin/rc-update", "del", "etcd-service")
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		cmd.Stdin = os.Stdin
+		cmd.Run()
+
+		return nil
+	}
+
+	// Etcd Configuration
+
+	// Write out the configuration file
+	configFile := "/etc/etcd-service.conf"
+	buf := &bytes.Buffer{}
+	buf.WriteString("ETCD_IFACE=\"" + iface + "\"\n")
+	buf.WriteString("ETCD_HOST_IP=\"$(ip addr show $ETCD_IFACE | grep \"inet\\b\" | awk '{print $2}' | cut -d/ -f1)\"\n")
+	buf.WriteString("ETCD_NAME=\"$(hostname -s)\"\n")
+	buf.WriteString("ETCD_TOKEN=\"" + token + "\"\n")
+	buf.WriteString("ETCD_ARGS=\"" + strings.Join(args, " ") + "\"\n")
+	err := ioutil.WriteFile(configFile, buf.Bytes(), 0644)
+	if err != nil {
+		return fmt.Errorf("failed to write "+configFile+": %v", err)
+	}
+
+	// Add the etcd service to the default run level
+	cmd := exec.Command("/usr/sbin/rc-update", "add", "etcd-service")
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+	cmd.Run()
+
+	// Start the etcd service
+	cmd = exec.Command("/etc/init.d/etcd-service", "start")
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+	cmd.Run()
+
+	return nil
+}
