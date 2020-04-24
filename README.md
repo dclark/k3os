@@ -655,6 +655,31 @@ k3os:
   - "key1=value1:NoExecute"
 ```
 
+### `k3os.etcd`
+
+Add the etcd service to the node which k3s can then use as a storage backend.
+
+ETCD_HOST_IP is retrieved by the ip address on the iface and can be used in the etcd args.
+ETCD_TOKEN is set via the k3os.etcd.token
+
+Logs are available at /var/log/etcd-service.log
+
+```yaml
+k3os:
+  etcd:
+     iface: eth1
+     token: "etcdsecret"
+     args:
+      - "--name=${ETCD_NAME}"
+      - "--data-dir=/var/lib/etcd-data"
+      - "--initial-advertise-peer-urls=http://${ETCD_HOST_IP}:2380"
+      - "--listen-peer-urls=http://${ETCD_HOST_IP}:2380"
+      - "--listen-client-urls=http://${ETCD_HOST_IP}:2379,http://127.0.0.1:2379"
+      - "--advertise-client-urls=http://${ETCD_HOST_IP}:2379"
+      - "--initial-cluster-token=${ETCD_TOKEN}"
+      - "--initial-cluster=k3s-server-01=http://${ETCD_HOST_IP}:2380"
+      - "--initial-cluster-state=new"
+
 ## License
 Copyright (c) 2014-2020 [Rancher Labs, Inc.](http://rancher.com)
 
