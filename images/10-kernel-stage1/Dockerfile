@@ -17,7 +17,7 @@ RUN apt-get --assume-yes update \
 
 ARG ARCH
 ENV KVERSION=5.0.0-43-generic
-ENV URL=https://github.com/rancher/k3os-kernel/releases/download/5.0.0-43.47-rancher1
+ENV URL=https://github.com/cwebd/k3os-kernel/releases/download/5.0.0-43.47-rancher1-wireguard
 ENV KERNEL_XZ=${URL}/kernel-generic_${ARCH}.tar.xz
 ENV KERNEL_EXTRA_XZ=${URL}/kernel-extra-generic_${ARCH}.tar.xz
 ENV KERNEL_HEADERS_XZ=${URL}/kernel-headers-generic_${ARCH}.tar.xz
