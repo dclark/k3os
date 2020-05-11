@@ -19,6 +19,7 @@ RUN apk --no-cache add \
     efibootmgr \
     eudev \
     findutils \
+    gettext \
     grub-efi \
     haveged \
     htop \
